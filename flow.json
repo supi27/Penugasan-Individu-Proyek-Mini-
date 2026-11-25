@@ -1,0 +1,229 @@
+[
+    {
+        "id": "tab_iot",
+        "type": "tab",
+        "label": "Penugasan Individu (Proyek Mini)",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "mqtt_broker_local",
+        "type": "mqtt-broker",
+        "name": "Mosquitto Lokal",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "NodeRED-Dashboard",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true
+    },
+    {
+        "id": "mqtt_in_suhu",
+        "type": "mqtt in",
+        "z": "tab_iot",
+        "name": "Suhu dari Python",
+        "topic": "iot/2410020001/sensor/suhu",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "mqtt_broker_local",
+        "x": 180,
+        "y": 100,
+        "wires": [
+            [
+                "fn_parse_suhu"
+            ]
+        ]
+    },
+    {
+        "id": "fn_parse_suhu",
+        "type": "function",
+        "z": "tab_iot",
+        "name": "Parse Float",
+        "func": "msg.payload = parseFloat(msg.payload);\nreturn msg;",
+        "outputs": 1,
+        "x": 400,
+        "y": 100,
+        "wires": [
+            [
+                "ui_gauge_suhu"
+            ]
+        ]
+    },
+    {
+        "id": "ui_gauge_suhu",
+        "type": "ui_gauge",
+        "z": "tab_iot",
+        "name": "Suhu",
+        "group": "grp_monitoring",
+        "order": 1,
+        "width": "6",
+        "height": "4",
+        "gtype": "gage",
+        "title": "Suhu (°C)",
+        "label": "°C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 50,
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "x": 620,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "ui_switch_led",
+        "type": "ui_switch",
+        "z": "tab_iot",
+        "name": "Kontrol LED",
+        "label": "LED",
+        "tooltip": "Klik untuk ON/OFF",
+        "group": "grp_kontrol",
+        "order": 1,
+        "width": "6",
+        "height": "2",
+        "passthru": false,
+        "decouple": "false",
+        "topic": "iot/2410020001/aktuator/led",
+        "topicType": "str",
+        "style": "",
+        "onvalue": "ON",
+        "onvalueType": "str",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "OFF",
+        "offvalueType": "str",
+        "officon": "",
+        "offcolor": "",
+        "x": 180,
+        "y": 200,
+        "wires": [
+            [
+                "mqtt_out_led"
+            ]
+        ]
+    },
+    {
+        "id": "mqtt_out_led",
+        "type": "mqtt out",
+        "z": "tab_iot",
+        "name": "Perintah LED",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "broker": "mqtt_broker_local",
+        "x": 420,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "ui_slider_pwm",
+        "type": "ui_slider",
+        "z": "tab_iot",
+        "name": "Kontrol PWM",
+        "label": "PWM",
+        "tooltip": "Atur nilai PWM (0-255)",
+        "group": "grp_kontrol",
+        "order": 2,
+        "width": "6",
+        "height": "2",
+        "passthru": true,
+        "outs": "end",
+        "topic": "iot/2410020001/aktuator/pwm",
+        "min": 0,
+        "max": 255,
+        "step": 1,
+        "x": 180,
+        "y": 400,
+        "wires": [
+            [
+                "mqtt_out_pwm"
+            ]
+        ]
+    },
+    {
+        "id": "mqtt_out_pwm",
+        "type": "mqtt out",
+        "z": "tab_iot",
+        "name": "Perintah PWM",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "broker": "mqtt_broker_local",
+        "x": 420,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "mqtt_in_status",
+        "type": "mqtt in",
+        "z": "tab_iot",
+        "name": "Status LED (feedback)",
+        "topic": "iot/2410020001/status/led",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "mqtt_broker_local",
+        "x": 200,
+        "y": 300,
+        "wires": [
+            [
+                "ui_text_status"
+            ]
+        ]
+    },
+    {
+        "id": "ui_text_status",
+        "type": "ui_text",
+        "z": "tab_iot",
+        "name": "Status LED",
+        "group": "grp_kontrol",
+        "order": 3,
+        "width": "6",
+        "height": "2",
+        "name_label": "Status",
+        "label": "Status LED",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 430,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "grp_monitoring",
+        "type": "ui_group",
+        "z": "tab_iot",
+        "name": "Monitoring",
+        "tab": "tab_dashboard",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "grp_kontrol",
+        "type": "ui_group",
+        "z": "tab_iot",
+        "name": "Kontrol",
+        "tab": "tab_dashboard",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "tab_dashboard",
+        "type": "ui_tab",
+        "z": "tab_iot",
+        "name": "IoT Dashboard",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    }
+]
